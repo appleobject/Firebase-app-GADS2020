@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="standard_marginTop_editText">24dp</dimen>
+    <dimen name="standard_margin_EditText">16dp</dimen>
+    <dimen name="title_large">24sp</dimen>
+    <dimen name="text_price_small">18sp</dimen>
+</resources>

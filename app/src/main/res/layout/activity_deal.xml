@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DealActivity">
+
+    <EditText
+        android:id="@+id/txtTitle"
+        android:hint="@string/deal_title_hint"
+        android:layout_width="0dp"
+        android:layout_height="53dp"
+        android:layout_margin="@dimen/standard_margin_EditText"
+        android:layout_marginTop="@dimen/standard_marginTop_editText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/txtPrice"
+        android:hint="@string/price_hint"
+        android:inputType="numberDecimal"
+        android:layout_width="0dp"
+        android:layout_height="53dp"
+        android:layout_margin="@dimen/standard_margin_EditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
+
+    <EditText
+        android:id="@+id/txtDescription"
+        android:hint="@string/description_hint"
+        android:layout_width="0dp"
+        android:layout_height="53dp"
+        android:layout_margin="@dimen/standard_margin_EditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPrice" />
+
+    <Button
+        android:id="@+id/btnImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin_EditText"
+        android:text="@string/upload_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDescription" />
+
+    <ImageView
+        android:id="@+id/images"
+        android:layout_width="50dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="@dimen/standard_margin_EditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnImage"
+        app:srcCompat="@android:drawable/screen_background_light_transparent"
+        android:contentDescription="@string/images" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
