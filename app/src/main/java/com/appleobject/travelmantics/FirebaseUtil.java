@@ -1,7 +1,7 @@
 package com.appleobject.travelmantics;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+
 
 import android.widget.Toast;
 
@@ -35,7 +35,7 @@ public class FirebaseUtil {
     private static final int RC_SIGN_IN = 123;
     @SuppressLint("StaticFieldLeak")
     private static ListActivity caller;
-    public static Boolean isAdmin;
+    public static boolean isAdmin;
 
     private FirebaseUtil(){}
 
@@ -58,6 +58,8 @@ public class FirebaseUtil {
                     Toast.makeText(callerActivity.getBaseContext(), "Welcome Back...", Toast.LENGTH_LONG).show();
                 }
             };
+
+            connectStorage();
         }
 
         mDeals = new ArrayList<TravelDeal>();
@@ -83,6 +85,7 @@ public class FirebaseUtil {
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
+                        .setIsSmartLockEnabled(false)
                         .build(),
                 RC_SIGN_IN);
     }
@@ -124,7 +127,7 @@ public class FirebaseUtil {
 
     public static void connectStorage(){
         mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getReference().child("deals_projects");
+        mStorageRef = mStorage.getReference().child("deals_pictures");
     }
 
 

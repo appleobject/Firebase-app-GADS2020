@@ -1,22 +1,40 @@
 package com.appleobject.travelmantics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.SuccessContinuation;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+
+import java.util.Objects;
 
 public class DealActivity extends AppCompatActivity {
     FirebaseDatabase mFirebaseDatabase;
@@ -27,7 +45,9 @@ public class DealActivity extends AppCompatActivity {
     TravelDeal deal;
     ListActivity caller;
     Button btnUpload;
-    public static final int REQUEST_CODE = 42;
+    UploadTask uploadTask;
+    public static final int PICTURE_RESULT = 42; // the answer to everything
+    ImageView mImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +63,9 @@ public class DealActivity extends AppCompatActivity {
              @Override
              public void onClick(View v) {
                  Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                 intent.setType("images/jpeg");
+                 intent.setType("image/jpeg");
                  intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                 startActivityForResult(Intent.createChooser(intent, "Insert picture"), REQUEST_CODE);
+                 startActivityForResult(Intent.createChooser(intent, "Insert picture"), PICTURE_RESULT);
              }
          });
     }
@@ -60,6 +80,7 @@ public class DealActivity extends AppCompatActivity {
         mTextTitle.setText(deal.getTitle());
         mTextDesc.setText(deal.getDescription());
         mTextPrice.setText(deal.getPrice());
+        showImage(deal.getImageUrl());
     }
 
     private void initViews() {
@@ -67,6 +88,7 @@ public class DealActivity extends AppCompatActivity {
         mTextPrice = findViewById(R.id.txtPrice);
         mTextDesc = findViewById(R.id.txtDescription);
         btnUpload = findViewById(R.id.btnImage);
+        mImageView = findViewById(R.id.images);
     }
 
     @Override
@@ -131,6 +153,22 @@ public class DealActivity extends AppCompatActivity {
             return;
         }
         mDatabaseReference.child(deal.getId()).removeValue();
+        if (deal.getImageName() != null && !deal.getImageName().isEmpty() == false){
+            StorageReference pRef = FirebaseUtil.mStorageRef.child(deal.getImageName());
+            pRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d("Delete", "Deleted Successfully...");
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("Error", e.getMessage()); 
+
+                }
+            });
+        }
     }
 
     private void backToList(){
@@ -142,6 +180,58 @@ public class DealActivity extends AppCompatActivity {
         mTextTitle.setEnabled(isEnabled);
         mTextPrice.setEnabled(isEnabled);
         mTextDesc.setEnabled(isEnabled);
+        btnUpload.setEnabled(isEnabled);
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICTURE_RESULT && resultCode == RESULT_OK){
+            Uri imageUrl = data.getData();
+            final StorageReference storageReference = FirebaseUtil.mStorageRef.child(imageUrl.getLastPathSegment());
+             uploadTask =  storageReference.putFile(imageUrl);
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    // Continue with the task to get the download URL
+                    return storageReference.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        String url = downloadUri.toString();
+                        deal.setImageUrl(url);
+                        Log.d("Url: ", url);
+                        showImage(url);
+                    } else {
+                        // Handle failures
+                        // ... Something went wrong
+                    }
+                }
+            });
+        }
+
+
+
+    }
+
+    private void showImage(String url){
+        if (url != null && !url.isEmpty()){
+            int width = Resources.getSystem().getDisplayMetrics().widthPixels;
+            Picasso.get()
+                    .load(url)
+                    .resize(width, width*2/3)
+                    .centerCrop()
+                    .into(mImageView);
+
+
+        }
+    }
+
 }
